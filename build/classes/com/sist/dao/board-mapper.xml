@@ -21,7 +21,24 @@
 		 -->
 	
 	</insert>
+	<!--
+		단일 데이터
+		다중 데이터: Board, Map
+		
+		Map을 이용해서 page 나눈다.
+		Beetween  1 and  10
+				 11 	 20
 	
+	  -->
+	
+	<select id="boardListData" resultType="Board" parameterType="java.util.Map">
+		select no, subject, name, regdate, hit, group_tab, num
+		from (SELECT no, subject, name, regdate, hit, group_tab, rownum as num
+			from(SELECT no, subject, name, regdate, hit, group_tab
+				from mvcBoard order by group_id desc, group_step asc				
+			)
+		) where num between #{start} and #{end}
+	</select>	
 
 </mapper>
  

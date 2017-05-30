@@ -1,18 +1,20 @@
 package com.sist.dao;
 
+import java.util.*;
+
 public class BoardVO {
 	private int no;
 	private String name;
 	private String subject;
 	private String content;
 	private String pwd;
-	private String regdate;
+	private Date regdate;
 	private int hit;
-	private int group_id;
-	private int group_step;
-	private int group_tab;
-	private int root;
-	private int depth;
+	private int group_id; // 답변형 게시판
+	private int group_step;// 답변형 게시판
+	private int group_tab;// 답변형 게시판
+	private int root; // 삭제할때 쓴다.
+	private int depth; // 삭제할때 쓴다.
 
 	public int getNo() {
 		return no;
@@ -54,11 +56,11 @@ public class BoardVO {
 		this.pwd = pwd;
 	}
 
-	public String getRegdate() {
+	public Date getRegdate() {
 		return regdate;
 	}
 
-	public void setRegdate(String regdate) {
+	public void setRegdate(Date regdate) {
 		this.regdate = regdate;
 	}
 
