@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Connection  -->
+
+ <!--
+ 	dtd를 붙여야 이클립스에서 tag를 보여준다. 
+ 	dtd의 tag뒤에 ?있으면 써도되고 안써도 된다.
+ 	
+ 	configuration(a?, b*, c+, d, (e|k)) ,로 속성 순서 지정
+ 	?사용해도되고(1번) 안해도되고
+ 	*사용안해도되는데 여러번 사용가능
+ 	+반드시 한번이상 써야 한다. 안쓰면 에러처리
+ 	default : 반드시 한번만 사용한다.
+ 	(e|k) : 둘중하나를 반드시 써야 한다. 
+	
+	===========================================
+	 	 					사용		반복
+	===========================================
+		?					o, x	x
+	===========================================
+		*					o, x	o
+	===========================================
+		+					o		o, x
+	===========================================
+		default				o		x
+	=========================================== 	
+		l					선택 		tr(th|td) 휴대폰, 집전화, 회사전화
+	=========================================== 	
+ -->
+
+<!DOCTYPE configuration
+ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration><!-- 최상위 태그 -->
+	<properties resource="db.properties" /> <!--src를 classpath라 한다. -->
+	<typeAliases>
+		<typeAlias type="com.sist.dao.BoardVO" alias="Board" />
+	</typeAliases>
+
+	<environments default="development"><!--여러 환경을 등록할수도 있다. oracle, mssql, 여러개 
+			db -->
+		<environment id="development">
+			<transactionManager type="JDBC">
+				<!-- JDBC : autocommit되어 있다. 문제되면 하나등록되고 나머지는 안된다. 나중에 문제된다. MANAGED 
+					tranjection : 일괄처리 Commit/RollBack -->
+			</transactionManager>
+			<dataSource type="POOLED"><!--PooledDataSource이라는 클래스가 있다.여기에 집어넣어 준다. -->
+				<!-- connection pool쓸지 안쓸지 UNPOOLED : 일반 POOLED JNDI public class PooledDataSource{ 
+					private String dirver; } -->
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" /><!--maxActive설정 
+					안하면 default8 log분석해서 적절하게 설정해야 한다. -->
+			</dataSource>
+		</environment>
+	</environments>
+
+	<mappers>
+		<!-- <!ENTITY nbsp " "> ==> &nbsp; 여기는 xml이 include되는 시점이다. 
+		element 등도 있다
+		
+		-->
+		<mapper resource="com/sist/dao/board-mapper.xml" />
+		
+	</mappers>
+</configuration>
