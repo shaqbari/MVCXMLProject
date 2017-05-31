@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
 <mapper namespace="com.sist.dao.board-mapper"> <!--namespace는 package를 의미한다.  -->
+	<!-- 데이터 추가 -->
 	<insert id="boardInsert" parameterType="Board">
 		<selectKey keyProperty="no" resultType="int" order="BEFORE" >
-			SELECT NVL(MAX(no)+1, 1)) as no FROM mvcBoard
+			SELECT NVL(MAX(no)+1, 1) as no FROM mvcBoard
 		</selectKey>
 		insert into mvcBoard(no, name, subject, content, pwd, group_id)
-		values(#{no}, #{name}, #{subject}, #{content}, #{pwd}, (SELECT NVL(MAX(no)+1, 1)) as no FROM mvcBoard));
+		values(#{no}, #{name}, #{subject}, #{content}, #{pwd}, (SELECT NVL(MAX(no)+1, 1) as no FROM mvcBoard))
 		<!-- 
 			#{no} ==> ?
 			insert into mvcBoard(no, name, subject, content, pwd, group_id)
-			values(?, ?, ?, ?, ?, (SELECT NVL(MAX(no)+1, 1)) as no FROM mvcBoard));
+			values(?, ?, ?, ?, ?, (SELECT NVL(MAX(no)+1, 1) as no FROM mvcBoard))
 		 	
 		 	ps.setInt(1, board.getNo());
 		 	pst.setString(2);
@@ -32,13 +33,120 @@
 	  -->
 	
 	<select id="boardListData" resultType="Board" parameterType="java.util.Map">
-		select no, subject, name, regdate, hit, group_tab, num
+		select no, subject, name, regdate, TO_CHAR(regdate, 'yyyy-MM-dd') as day, hit, group_tab, num
 		from (SELECT no, subject, name, regdate, hit, group_tab, rownum as num
 			from(SELECT no, subject, name, regdate, hit, group_tab
 				from mvcBoard order by group_id desc, group_step asc				
 			)
 		) where num between #{start} and #{end}
 	</select>	
-
+	
+	<!-- 
+		총페이지 구하기
+		숫자함수
+			ROUND() : 반올림 round(123.56, 1) ==> 123.6
+			TRUNC() : 버림 trunc(123.56, 1) ==> 123.5
+			MOD() : 나머지 mod(10,2 ) = 0
+			CEIL() : 올림 CEIL(123.5) ==? 124
+		문자함수
+			SUBSTR() : 문자 분해
+			INSTR() : 문자의 위치 확인
+			RPAD() : 
+			
+		변환함수
+			TO_CHAR() : 시간출력(등록시간)
+		날짜함수
+			SYSDATE() : 현재시간
+			MONTHS_BEETWEEN(), ADD_MONTH()
+		기타함수
+			DECODE(), CASE(), NVL()
+			=========================
+				Trigger, Procedure 만들때 사용한다.
+		집합함수
+			COUNT()
+			MAX()
+	 -->
+	 <!--  
+	 	xml dtd설정
+	 	<!ELEMENT select (#PCDATA)> : select란 태그안에는 문자열이 들어간다.
+	 	<!ATTLIST select id ID #REQUIRED> : select태그안에는 ID속성이 반드시 있어야 하고 입력을해야 한다.=>중복을 허용하지 않는다.
+	 
+	 -->
+	
+	<select id="boardTotalPage" resultType="int">
+		SELECT CEIL(COUNT(*)/10) FROM mvcBoard
+	</select>
+	
+	<!-- 내용보기 먼저 hit수 증가-->
+	<update id="boardHitIncrement" parameterType="int">
+		UPDATE mvcBoard SET
+		hit=hit+1
+		where no=#{no}
+	</update>
+	<select id="boardContentData" parameterType="int" resultType="Board">
+		Select no, name, subject, content, TO_CHAR(regdate, 'YYYY-MM-DD') as day, hit
+		FROM mvcBoard
+		WHERE no=#{no}
+	</select>
+	
+	<!-- 수정하기 -->
+	<select id="boardGetPwd" parameterType="int" resultType="String">
+		SELECT pwd from mvcBoard
+		where no=#{no}
+	</select>
+	<update id="boardUpdate" parameterType="Board">
+		UPDATE mvcBoard SET
+		name=#{name}, subject=#{subject}, content=#{content}
+		WHERE no=#{no}
+	</update>
+	
+	<!--답변 올리기  -->	
+	<!-- 1. pno정보(Group) -->
+	<select id="boardGroupInfoData" resultType="Board" parameterType="int">
+		SELECT group_id, group_step, group_tab
+		FROM mvcBoard
+		WHERE no=#{no}
+	</select>
+	<!-- 2. 
+						gi gs gt   root depth
+		aaaa            1  0  0         2     root에 대해 +1을 한다.
+		 =>bbbb         1  1  1(2)      1         먼저 gs를 +1한다.
+		  =>cccc        1  2  2    2    0         먼저 gs를 +1한다.
+	    
+	     =>dddd         1  1  1
+	     
+	     
+	    aaaa            1  0  0         3
+	     =>dddd         1  1  1         0
+		 =>bbbb         1  2  1         1
+		  =>cccc        1  3  2         0
+	     
+	     
+	 -->
+	<update id="boardGroupStepIncrement" parameterType="Board">
+		update mvcBoard set
+		group_step=group_step+1
+		where group_id=#{group_id} and group_step>#{group_step}
+	</update>
+	<!-- 3.insert -->
+	<insert id="boardReplyInsert" parameterType="Board">
+		<selectKey keyProperty="no" resultType="int" order="BEFORE" >
+			SELECT NVL(MAX(no)+1, 1) as no FROM mvcBoard
+		</selectKey>
+		insert into mvcBoard(no, name, subject, content, pwd, group_id
+		, group_step, group_tab, root )<!--root는 삭제할때  쓴다. pno가 넘어오는게 root가 된다.-->
+		values(#{no}, #{name}, #{subject}, #{content}, #{pwd}, #{group_id}
+		, #{group_step}, #{group_tab}, #{root}) <!-- dao에서 조절해서 다시 보낸다. -->
+	</insert>
+	<!-- 4.dept증가 -->
+	<update id="baordDepthIncrement" parameterType="int">
+		UPDATE mvcBoard SET
+		depth=depth+1
+		where no=#{no}
+	</update>	
+	
 </mapper>
+ 
+ 
+ 
  

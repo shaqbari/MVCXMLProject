@@ -14,8 +14,7 @@
 		<h3>게시판 목록</h3>
 		<table id="table_content" width=700>
 			<tr>
-				<td><a href="insert.do">새글</a></td>
-				
+				<td><a href="insert.do">새글</a></td>				
 			</tr>
 		</table>
 		<table id="table_content" width=700>
@@ -29,7 +28,19 @@
 			<c:forEach var="vo" items="${list}">
 				<tr class="dataTr">
 					<td width="10%" align=center>${vo.no}</td>
-					<td width="45%" align=center>${vo.subject}</td>
+					<td width="45%" align=center>
+						<c:if test="${vo.group_tab>0}"><!--답변이라면   -->
+							<c:forEach var="i" begin="1" end="${vo.group_tab}">
+								&nbsp;&nbsp;
+							</c:forEach>
+							<img src="image/icon_reply.gif" />
+						</c:if>
+						<a href="content.do?no=${vo.no}&page=${curpage}">${vo.subject}</a><!--보고있던 page로 돌아오기 위해 현재 page도 보내준다. -->
+						<!-- no =parameter =전에 공백을 남기면 안된다. -->
+						<c:if test="${today==vo.day}">
+							<sup><img src="image/new.gif"/></sup>
+						</c:if>
+					</td>
 					<td width="15%" align=center>${vo.name}</td>
 					<td width="20%" align=center>
 						<fmt:formatDate value="${vo.regdate}" pattern="yyyy-MM-dd"/>
@@ -38,7 +49,15 @@
 				</tr>
 			</c:forEach>
 		</table>
-	</center>
-	
+		<table>
+			<tr>
+				<td align=right>
+					<a href="list.do?page=${curpage>1?curpage-1:curpage }"><img src="image/prev_a.gif"></a>&nbsp;
+					<a href="list.do?page=${curpage<totalpage?curpage+1:curpage }"><img src="image/next_a.gif"></a>&nbsp;&nbsp;
+					${curpage} page/${totalpage}pages
+				</td>
+			</tr>
+		</table>
+	</center>	
 </body>
 </html>

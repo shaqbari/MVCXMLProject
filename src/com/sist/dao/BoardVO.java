@@ -15,6 +15,17 @@ public class BoardVO {
 	private int group_tab;// 답변형 게시판
 	private int root; // 삭제할때 쓴다.
 	private int depth; // 삭제할때 쓴다.
+	private String day;
+	
+	
+	
+	public String getDay() {
+		return day;
+	}
+
+	public void setDay(String day) {
+		this.day = day;
+	}
 
 	public int getNo() {
 		return no;

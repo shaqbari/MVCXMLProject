@@ -38,9 +38,16 @@ public class DispatcherServlet extends HttpServlet {
 			String jsp=model.handlerRequest(request, response);
 			// 요청에 대한 처리 ==> 결과값은 request에 담는다.
 			
-			//포워딩
-			RequestDispatcher rd=request.getRequestDispatcher(jsp);
-			rd.forward(request, response);
+			String ext=jsp.substring(jsp.lastIndexOf(".")+1);
+			if (ext.equals("jsp")) {
+				//포워딩
+				RequestDispatcher rd=request.getRequestDispatcher(jsp);
+				rd.forward(request, response);				
+			}else{ //.do가 들어오면 redirect
+				response.sendRedirect(jsp);
+				
+			}
+			
 			
 			
 		} catch (Exception e) {
