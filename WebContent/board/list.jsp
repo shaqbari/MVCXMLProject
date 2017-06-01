@@ -35,7 +35,12 @@
 							</c:forEach>
 							<img src="image/icon_reply.gif" />
 						</c:if>
+						<c:if test="${vo.subject!=msg}">
 						<a href="content.do?no=${vo.no}&page=${curpage}">${vo.subject}</a><!--보고있던 page로 돌아오기 위해 현재 page도 보내준다. -->
+						</c:if>
+						<c:if test="${vo.subject==msg}">
+						<span style="color:gray">${vo.subject}<!--삭제된 게시물 --></span>
+						</c:if>
 						<!-- no =parameter =전에 공백을 남기면 안된다. -->
 						<c:if test="${today==vo.day}">
 							<sup><img src="image/new.gif"/></sup>
@@ -51,6 +56,18 @@
 		</table>
 		<table>
 			<tr>
+				<td align="left">
+					<form action="find.do" method="post">
+						Search: 
+						<select name="fs" ><!-- feild statement -->
+							<option value="name">이름</option>
+							<option value="subject">제목</option>
+							<option value="content">내용</option>
+						</select>
+						<input type="text" name="ss" size="10"/>
+						<input type="submit" value="검색" />
+					</form>
+				</td>
 				<td align=right>
 					<a href="list.do?page=${curpage>1?curpage-1:curpage }"><img src="image/prev_a.gif"></a>&nbsp;
 					<a href="list.do?page=${curpage<totalpage?curpage+1:curpage }"><img src="image/next_a.gif"></a>&nbsp;&nbsp;

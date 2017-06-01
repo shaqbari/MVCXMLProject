@@ -31,7 +31,24 @@
 				delFlag==false?$('#del').show():$('#del').hide();				
 				delFlag=!delFlag;
 			});			
+		
+			$('#delBtn').click(function(){
+				var pwd=$('#pwd').val();
+				//document.frm pwd.value
+				
+				if(pwd.trim()==""){
+					alert("비밀번호를 입력하세요");
+					$('#pwd').focus();
+					return;
+				}
+				
+				$('#delFrm').submit();
+				
+			});
 		});
+		
+		
+		
 		
 	</script>
 </head>
@@ -70,8 +87,12 @@
 			</tr>
 			<tr id="del" style="display:none">
 				<td align=right>
-					비밀번호 : <input type="password" name="pwd" size=10 />
-					<input type="button" value="삭제" />
+					<form method="post" action="delete.do" id="delFrm">
+					<input type="hidden" name="no" value="${vo.no }" />
+					<input type="hidden" name="page" value="${page }" />
+					비밀번호 : <input type="password" name="pwd" size=10 id="pwd"/>
+					<input type="button" value="삭제" id="delBtn"/>
+					</form>
 				</td>
 			</tr>
 		</table>

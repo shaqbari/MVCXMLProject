@@ -21,7 +21,7 @@ public class BoardDAO {
 		try {
 			Reader reader=Resources.getResourceAsReader("Config.xml");
 			ssf=new SqlSessionFactoryBuilder().build(reader);
-					
+				
 		} catch (Exception e) {
 			System.out.println("초기화블록에서"+e.getMessage());
 		}
@@ -185,7 +185,58 @@ public class BoardDAO {
 	}
 	
 	//삭제
-	
+	public static boolean boardDelete(int no, String pwd) {
+		boolean bCheck=false;
+		SqlSession session=null;
+		try {
+			session=ssf.openSession();
+			
+			//비밀번호 검색
+			//depth => d, u			
+			//depth 감소
+			String db_pwd=session.selectOne("boardGetPwd", no);
+			if (db_pwd.equals(pwd)) {
+				bCheck=true;
+				BoardVO vo=session.selectOne("boardGetDepth", no);
+				if (vo.getDepth()==0) {
+					session.delete("boardDelete", no);
+					
+				}else{
+					session.update("boardSubjectUpdate", no);
+					
+				}
+				session.update("boardDepthDecrement", vo.getRoot());
+			}
+			
+			session.commit();
+			
+			
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		} finally {
+			session.close();
+		}
+		
+		return bCheck;		
+	}
+		
 	//찾기
+	public static List<BoardVO> boardFindData(Map map) {
+		List<BoardVO> list=new ArrayList<BoardVO>();
+		
+		SqlSession session=null;				
+		try {
+			session=ssf.openSession();
+			list=session.selectList("boardFindData", map);
+			
+			
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		} finally {
+			session.close();
+		}
+		
+		return list;
+	} 
 	
 }

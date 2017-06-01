@@ -41,10 +41,11 @@ public class ListModel implements Model {
 		request.setAttribute("list", list);
 		
 		request.setAttribute("curpage", curpage);
-		
+				
 		int totalpage=dao.boardTotalPage();
 		request.setAttribute("totalpage", totalpage);
 		request.setAttribute("today", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));//오늘날짜 넘긴다.
+		request.setAttribute("msg", "관리자가 삭제한 게시물입니다.");
 		
 		return "board/list.jsp";
 	}

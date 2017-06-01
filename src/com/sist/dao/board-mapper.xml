@@ -145,6 +145,49 @@
 		where no=#{no}
 	</update>	
 	
+	
+	<!--Delete  -->
+	<!-- 1. no에 맞는 암호가져오기.  위에꺼 쓴다.-->
+	<!-- 2. 삭제하기 depth가 0일때만(답변이 안달렸을때만) 삭제한다 이때 상위 게시물의 depth를 감소시켜야한다.
+			 0이아닐때는 관리자에의해 삭제되었다는 메시지를 남긴다.(update)-->
+	<select id="boardGetDepth" resultType="Board" parameterType="int">
+		SELECT depth, root FROM mvcBoard
+		WHERE no=#{no}	
+	</select>
+	<!--  
+		depth=0 Delete
+		depth!=0 UPDATE
+	-->
+	<delete id="boardDelete" parameterType="int">
+		DELETE FROM mvcBoard
+		WHERE no=#{no}
+	</delete>
+	<update id="boardSubjectUpdate" parameterType="int">
+		UPDATE mvcBoard SET
+		subject='관리자가 삭제한 게시물입니다.',
+		content='관리자가 삭제한 게시물입니다.'
+		WHERE no=#{no}
+	</update>
+	<update id="boardDepthDecrement" parameterType="int">
+		UPDATE mvcBoard SET
+		depth=depth-1
+		WHERE no=#{no}
+	</update>
+	
+	<!--
+	 	find
+	 	fs=name
+	 	ss='홍'
+	 	테이블이나 컬럼명을 선택할때는 ${}을쓴다.
+	  -->
+	<select id="boardFindData" parameterType="java.util.Map" resultType="Board">
+		SELECT no, subject, name, regdate, hit
+		FROM mvcBoard
+		WHERE ${fs} LIKE '%'||#{ss}||'%'
+	</select>	
+	<!-- mybatis의 핵심은 동적쿼리 생성이다. -->
+	
+	
 </mapper>
  
  
